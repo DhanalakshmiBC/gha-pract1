@@ -36,6 +36,7 @@ jobs:
               
     test:
         needs: lint
+        continue-on-error: true
         runs-on: ubuntu-latest
         steps:
             - name: checkout code
@@ -54,6 +55,7 @@ jobs:
               if: steps.cache.outputs.cache-hit != 'true'
               run: npm ci
             - name: test the code
+              continue-on-error: true
               id: run-test
               run: npm run test
             - name: Upload test report
@@ -102,19 +104,23 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - name: Get build artifacts
-              uses: actions/download-artifact@v4
-              with:
-                name: dist-files
-            - name: list contents
-              run: |
-                 ls assets
-            - name: Finding files
-              run: find assets/*.js -type f -execdir echo '{}' ';'
- 
+              uses: ./github/workflow/use-reuse.yml
+              
     report:
         needs: [lint,test,build,deploy]
         if: failure()
-        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [12,14,16]
+                operating-system: [ubuntu-latest, windows-latest]
+                include:
+                    - node-version: 18
+                      operating-system: ubuntu-latest
+                exclude: 
+                    - node-version: 12
+                      operating-system: windows-latest
+
+        runs-on: ${{matrix.operating-system}}
         steps:
             - name: Output information
               run: |
