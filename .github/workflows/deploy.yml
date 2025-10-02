@@ -101,12 +101,9 @@ jobs:
                 name: dist-files
             - name: list contents
               run: |
-                 ls
                  ls assets
-                 ls dist-files
-                 ls ./dist/assets
             - name: Finding files
-              run: find dist/assets/*.js -type f -execdir echo '{}' ';'
+              run: find assets/*.js -type f -execdir echo '{}' ';'
  
     report:
         needs: [lint,test,build,deploy]
