@@ -24,7 +24,7 @@ jobs:
             - name: Checkout repo
               uses: actions/checkout@v3
             - name: Get build artifacts
-              uses: ./.github/workflows/use-reuse.yml
+              uses: ./.github/actions/use-reuse.yml
               with:
                 artifact-name: dist-files
     lint:
