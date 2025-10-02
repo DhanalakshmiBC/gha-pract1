@@ -21,6 +21,8 @@ jobs:
         # needs: build
         runs-on: ubuntu-latest
         steps:
+            - name: Checkout repo
+              uses: actions/checkout@v3
             - name: Get build artifacts
               uses: ./.github/workflows/use-reuse.yml
               with:
