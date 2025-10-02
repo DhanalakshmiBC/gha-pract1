@@ -17,6 +17,14 @@ on:
               default: "staging"
 
 jobs: 
+    deploy:
+        # needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Get build artifacts
+              uses: ./.github/workflows/use-reuse.yml
+              with:
+                artifact-name: dist-files
     lint:
         runs-on: ubuntu-latest
         steps:
@@ -99,14 +107,7 @@ jobs:
                 #    dist
                 #    package.json
 
-    deploy:
-        needs: build
-        runs-on: ubuntu-latest
-        steps:
-            - name: Get build artifacts
-              uses: ./.github/workflows/use-reuse.yml
-              with:
-                artifact-name: dist-files
+    
               
     report:
         needs: [lint,test,build,deploy]
