@@ -102,6 +102,17 @@ jobs:
             - name: list contents
               run: |
                  ls
+                 ls assets
+                 ls dist-files
                  ls ./dist/assets
             - name: Finding files
               run: find dist/assets/*.js -type f -execdir echo '{}' ';'
+ 
+    report:
+        needs: [lint,test,build,deploy]
+        runs-on: ubuntu-latest
+        steps:
+            - name: Output information
+              run: |
+                echo "Something went wrong"
+                echo "${{ github }}"
