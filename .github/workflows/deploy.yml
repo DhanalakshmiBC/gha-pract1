@@ -1,6 +1,11 @@
 name: Reaact app
-on: [push, workflow_dispatch]
-    
+on: 
+    push:
+        branches:
+            - master
+            - main
+    workflow_dispatch:
+        
 jobs: 
     test:
         runs-on: ubuntu-latest
