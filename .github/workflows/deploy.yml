@@ -1,0 +1,21 @@
+name: Reaact app
+on: 
+    push:
+        branches:
+            - master
+            - main
+    workflow_dispatch:
+jobs: 
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout code
+              uses: actions/checkout@v4
+            - name: install node
+              uses: actions/setup-node@v3
+              with: 
+                node-version: 18
+            - name: install dependency
+              run: npm ci
+            - name: test the code
+              run: npm test
