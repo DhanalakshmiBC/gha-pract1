@@ -105,6 +105,8 @@ jobs:
         steps:
             - name: Get build artifacts
               uses: ./.github/workflows/use-reuse.yml
+              with:
+                artifact-name: dist-files
               
     report:
         needs: [lint,test,build,deploy]
