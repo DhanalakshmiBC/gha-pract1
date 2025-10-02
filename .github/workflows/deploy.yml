@@ -61,7 +61,7 @@ jobs:
             - name: Output event
               run: echo "${{ toJSON(github.event) }}"
             - name: Upload artifacts
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                 name: dist-files
                 path: |
