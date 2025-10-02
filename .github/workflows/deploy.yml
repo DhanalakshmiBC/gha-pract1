@@ -66,7 +66,7 @@ jobs:
                  path: test.json
            
     build:
-        # needs: test
+        needs: test
         runs-on: ubuntu-latest
         steps: 
             - name: checkout code
@@ -104,6 +104,14 @@ jobs:
                     uses: ./.github/workflows/reusable.yml
                     with:
                       artifact-name: dist-files
+                     
+                     
+    print-deploy-result:
+                        needs: deploy
+                        runs-on: ubuntu-latest
+                        steps:
+                          - name: Print deploy output
+                            run: echo "${{ needs.deploy.outputs.result }}"
               
     report:
         needs: [lint,test,build,deploy]
@@ -125,3 +133,50 @@ jobs:
               run: |
                 echo "Something went wrong"
                 echo "${{ toJSON(github) }}"
+
+    
+    ECR_ECS_Deployment:
+                    name: Build Docker Image And Push To ECR And Deploy To ECS
+                    runs-on: ubuntu-latest  
+                    steps:  
+                        - name: Checkout
+                          uses: actions/checkout@v2    
+                          
+                        - name: Setup AWS ECR Details
+                          uses: aws-actions/configure-aws-credentials@v1
+                          with:
+                            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                            aws-region: ${{secrets.AWS_REGION}}
+                
+                        - name: Login to Amazon ECR
+                          id: login-pf-aws-ecr
+                          uses: aws-actions/amazon-ecr-login@v1
+                          
+                        - name: Build and push the tagged docker image to Amazon ECR
+                          id : containerImage
+                          env:
+                            ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
+                            ECR_REPOSITORY: ${{secrets.AWS_ECR_REPO}}
+                            IMAGE_TAG: deepilove
+                          run: |
+                            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                
+                        - name: list docker images
+                          run: docker images
+                        - name: list path
+                          run: echo $ECR_REPOSITORY
+                        - name: Install AWS CLI v2
+                          run:  |
+                                curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+                                unzip -q /tmp/awscliv2.zip -d /tmp
+                                rm /tmp/awscliv2.zip
+                                sudo /tmp/aws/install --update
+                                rm -rf /tmp/aws/
+                        - name: list aws images
+                          run: aws ecr list-images --repository-name "ecrdemo"  --region us-east-1
+                
+                        - name: ECR Status Check
+                          if: steps.containerImage.outcome == 'failure'
+                          run: exit 1
