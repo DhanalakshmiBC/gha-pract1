@@ -4,6 +4,11 @@ on:
         branches:
             - master
             - main
+        paths-ignore:
+            - .github/workflows/issues.yml
+    pull_request:
+        types:
+            - opened
     workflow_dispatch:
         inputs:
             environment:
@@ -36,6 +41,13 @@ jobs:
               run: npm ci
             - name: test the code
               run: npm test
+            - name: Upload artifacts
+              uses: actions/upload-artifacts@v3
+              with:
+                name: dist-files
+                path: |
+                   dist
+                   package.json
     deploy:
         needs: test
         runs-on: ubuntu-latest
